@@ -54,18 +54,41 @@ def create_checkout_session(request):
     return redirect(session.url, code=303)
   
 
-def success_view(request):
-  session_id = request.GET.get("session_id")
-  session = stripe.checkout.Session.retrieve(session_id)
-  order = Order.objects.filter(payment_id=session.id).first()
+# def success_view(request):
+#   session_id = request.GET.get("session_id")
+#   session = stripe.checkout.Session.retrieve(session_id)
+#   order = Order.objects.filter(payment_id=session.id).first()
 
-  if order and not order.paid:
-    order.paid = True
-    order.save()
+#   if order and not order.paid:
+#     order.paid = True
+#     order.save()
   
-  return redirect("/")
+#   return redirect("/")
 
 
+
+def success_view(request):
+    session_id = request.GET.get("session_id")
+    if not session_id:
+        return redirect("/")
+
+    try:
+        # Fetch latest session info from Stripe
+        session = stripe.checkout.Session.retrieve(session_id)
+    except Exception as e:
+        print("Stripe Error:", e)
+        return redirect("/")
+
+    # Find matching order by payment_id
+    order = Order.objects.filter(payment_id=session.id).first()
+
+    # Mark as paid only once
+    if order and not order.paid and session.payment_status == "paid":
+        order.paid = True
+        order.save()
+
+    # Redirect to home
+    return redirect("/")
 
 
 
