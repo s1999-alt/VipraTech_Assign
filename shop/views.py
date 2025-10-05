@@ -8,12 +8,41 @@ from django.views.decorators.csrf import csrf_exempt
 import stripe
 
 
+def signup_view(request):
+  if request.method == "POST":
+    form = UserCreationForm(request.POST)
+    if form.is_valid():
+      user = form.save()
+      login(request, user)
+      return redirect('/')
+    
+  else:
+     form = UserCreationForm()
+  return render(request, 'signup.html', {'form': form})
+
+
+
+def login_view(request):
+  if request.method == "POST":
+    form = AuthenticationForm(request, data=request.POST)
+    if form.is_valid():
+      user = form.get_user()
+      login(request, user)
+      return redirect('/')
+  
+  else:
+     form = AuthenticationForm()
+  return render(request, 'login.html', {'form': form})
+
+
+
+
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 def index(request):
   products = Product.objects.all()
-  orders = Order.objects.filter(paid=True)
+  orders = Order.objects.filter(user=request.user, paid=True) if request.user.is_authenticated else []
 
   context = {
     "products": products,
@@ -24,6 +53,7 @@ def index(request):
 
 
 @csrf_exempt
+@login_required(login_url='/login/')
 def create_checkout_session(request):
   if request.method =='POST':
     product_id = request.POST.get("product_id")
@@ -48,6 +78,7 @@ def create_checkout_session(request):
     )
 
     Order.objects.create(
+      user=request.user,
       product=product,
       quantity=quantity,
       total_amount=total,
@@ -94,34 +125,7 @@ def success_view(request):
     return redirect("/")
 
 
-def signup_view(request):
-  if request.method == "POST":
-    form = UserCreationForm(request.POST)
-    if form.is_valid():
-      user = form.save()
-      login(request, user)
-      return redirect('/')
-    
-  else:
-     form = UserCreationForm()
-  return render(request, 'signup.html', {'form': form})
 
-
-
-def login_view(request):
-  if request.method == "POST":
-    form = AuthenticationForm(request, data=request.POST)
-    if form.is_valid():
-      user = form.get_user()
-      login(request, user)
-      return redirect('/')
-  
-  else:
-     form = AuthenticationForm()
-  return render(request, 'login.html', {'form': form})
-
-
- 
 def logout_view(request):
     logout(request)
     return redirect('/')
