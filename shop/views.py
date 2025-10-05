@@ -35,11 +35,6 @@ def login_view(request):
   return render(request, 'login.html', {'form': form})
 
 
-
-
-stripe.api_key = settings.STRIPE_SECRET_KEY
-
-
 def index(request):
   products = Product.objects.all()
   orders = Order.objects.filter(user=request.user, paid=True) if request.user.is_authenticated else []
@@ -51,6 +46,9 @@ def index(request):
   }
   return render(request, "index.html", context)
 
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @csrf_exempt
 @login_required(login_url='/login/')
@@ -88,19 +86,6 @@ def create_checkout_session(request):
     return redirect(session.url, code=303)
   
 
-# def success_view(request):
-#   session_id = request.GET.get("session_id")
-#   session = stripe.checkout.Session.retrieve(session_id)
-#   order = Order.objects.filter(payment_id=session.id).first()
-
-#   if order and not order.paid:
-#     order.paid = True
-#     order.save()
-  
-#   return redirect("/")
-
-
-
 def success_view(request):
     session_id = request.GET.get("session_id")
     if not session_id:
@@ -121,9 +106,14 @@ def success_view(request):
         order.paid = True
         order.save()
 
-    # Redirect to home
     return redirect("/")
 
+
+def cancel_view(request):
+    context = {
+        "message": "Your payment was canceled or failed. Please try again.",
+    }
+    return render(request, "cancel.html", context)
 
 
 def logout_view(request):
