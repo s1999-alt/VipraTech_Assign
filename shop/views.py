@@ -40,8 +40,8 @@ def create_checkout_session(request):
         "quantity": quantity,
       }],
       mode="payment",
-      success_url=request.build_absolute_uri("/success?session_id={CHECKOUT_SESSION_ID}"),
-      cancel_url=request.build_absolute_uri("/"),
+      success_url=request.build_absolute_uri('/success') + '?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url=request.build_absolute_uri('/cancel'),
     )
 
     Order.objects.create(
@@ -54,9 +54,16 @@ def create_checkout_session(request):
     return redirect(session.url, code=303)
   
 
+def success_view(request):
+  session_id = request.GET.get("session_id")
+  session = stripe.checkout.Session.retrieve(session_id)
+  order = Order.objects.filter(payment_id=session.id).first()
 
-
-
+  if order and not order.paid:
+    order.paid = True
+    order.save()
+  
+  return redirect("/")
 
 
 
