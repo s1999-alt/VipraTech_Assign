@@ -1,9 +1,108 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit" class="btn btn-success">Login</button>
-</form>
+
+<style>
+  body {
+    background: linear-gradient(120deg, #0a0f24, #0d6efd);
+    background-size: 200% 200%;
+    animation: moveGradient 8s ease infinite;
+    color: #fff;
+  }
+
+  @keyframes moveGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .login-container {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .login-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    color: #fff;
+  }
+
+  h2 {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+  }
+
+  form label {
+    font-weight: 500;
+    margin-top: 8px;
+  }
+
+  form input {
+    border-radius: 8px;
+    border: none;
+    padding: 10px 12px;
+    width: 100%;
+    margin-bottom: 15px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #000;
+    transition: box-shadow 0.3s ease;
+  }
+
+  form input:focus {
+    outline: none;
+    box-shadow: 0 0 6px rgba(13, 110, 253, 0.6);
+  }
+
+  .btn-success {
+    background: linear-gradient(45deg, #198754, #20c997);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    width: 100%;
+    padding: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-success:hover {
+    background: linear-gradient(45deg, #157347, #0dcaf0);
+    transform: scale(1.03);
+  }
+
+  .extra-links {
+    text-align: center;
+    margin-top: 15px;
+  }
+
+  .extra-links a {
+    color: #f8f9fa;
+    text-decoration: underline;
+  }
+
+  .extra-links a:hover {
+    color: #0dcaf0;
+  }
+</style>
+
+<div class="login-container">
+  <div class="login-card">
+    <h2>Login</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-success">Login</button>
+    </form>
+    <div class="extra-links">
+      <p>Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
