@@ -84,6 +84,11 @@
   {% for product in products %}
     <div class="col-md-4">
       <div class="card p-4 mb-4 shadow-sm">
+          {% if product.image %}
+    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="card-img-top mb-3" style="height: 200px; object-fit: cover; border-radius: 10px;">
+  {% else %}
+    <img src="https://via.placeholder.com/200x200?text=No+Image" alt="No Image" class="card-img-top mb-3" style="height: 200px; object-fit: cover; border-radius: 10px;">
+  {% endif %}
         <h5 class="card-title">{{ product.name }}</h5>
         <p class="card-text">Price: ₹{{ product.price }}</p>
 
