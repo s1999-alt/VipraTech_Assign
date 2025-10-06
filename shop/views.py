@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from .models import Product, Order
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
@@ -50,8 +51,12 @@ def index(request):
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @csrf_exempt
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
 def create_checkout_session(request):
+  if not request.user.is_authenticated:
+    messages.warning(request, "Please login to book.")
+    return redirect('login')
+  
   if request.method =='POST':
     product_id = request.POST.get("product_id")
     quantity = int(request.POST.get("quantity"))
